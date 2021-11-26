@@ -27,57 +27,64 @@
 <script>
 import TodoDescription from './TodoDescription.vue'
 import { capitalize } from '../helpers/string-helpers'
+import { ref, computed, onMounted, watch } from 'vue'
 
 export default {
   components: { TodoDescription },
   props: ['title'],
-  mounted() {
-    console.log('component mounted')
-    console.log('The prop title is: ' + this.title)
-  },
-  data() {
-    return {
-      newId: 3,
-      todoInput: '',
-      todos: [
-        {
-          id: 1,
-          title: 'Finish Vue Screencast',
-          complete: false,
-        },
-        {
-          id: 2,
-          title: 'Take over world',
-          complete: false,
-        },
-      ],
-    }
-  },
-  computed: {
-    remaining() {
-      return this.todos.filter(todo => !todo.complete).length
-    },
-  },
-  watch: {
-    newId(newId, oldId) {
-      console.log('Id is now: ' + newId)
-    },
-  },
-  methods: {
-    addTodo() {
-      this.todos.push({
-        id: this.newId,
-        title: this.todoInput,
+  setup(props) {
+    onMounted(() => {
+      console.log('component mounted')
+      console.log('The prop title is: ' + props.title)
+    })
+
+    const newId = ref(3)
+
+    function addTodo() {
+      todos.value.push({
+        id: newId.value,
+        title: todoInput.value,
         complete: false,
       })
 
-      this.newId++
-      this.todoInput = ''
-    },
-    deleteTodo(id) {
-      this.todos = this.todos.filter(todo => id !== todo.id)
-    },
-    capitalize,
+      newId.value++
+      todoInput.value = ''
+    }
+
+    const todoInput = ref('')
+    const todos = ref([
+      {
+        id: 1,
+        title: 'Finish Vue Screencast',
+        complete: false,
+      },
+      {
+        id: 2,
+        title: 'Take over world',
+        complete: false,
+      },
+    ])
+
+    watch(newId, (newId, oldId) => {
+      console.log('Id is now: ' + newId)
+    })
+
+    function deleteTodo(id) {
+      todos.value = todos.value.filter(todo => id !== todo.id)
+    }
+
+    const remaining = computed(() => {
+      return todos.value.filter(todo => !todo.complete).length
+    })
+
+    return {
+      todoInput,
+      todos,
+      addTodo,
+      deleteTodo,
+      capitalize,
+      remaining,
+    }
   },
 }
 </script>
